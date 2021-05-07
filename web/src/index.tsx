@@ -5,6 +5,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
 import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
 import { setContext } from '@apollo/client/link/context';
+import './styles/style.scss';
 
 import App from './App';
 
@@ -14,7 +15,7 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => ({
   headers: {
-    authorization: 'Bearer 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',
+    authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN}`,
     'content-Type': 'application/json',
   },
 }));

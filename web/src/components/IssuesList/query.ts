@@ -1,9 +1,11 @@
+import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
+import { IssueState } from '../../generated/graphql';
 
 export const QUERY_ISSUES_LIST = gql` 
-query IssuesList {
+query IssuesList($state: [IssueState!] $after: String) {
   repository(owner: "reactjs", name: "reactjs.org") {
-    issues(orderBy: {field: CREATED_AT, direction: DESC}, first: 10) {
+    issues(states:$state, orderBy: {field: CREATED_AT, direction: DESC}, first: 10, after: $after) {
       edges {
         cursor
         node {
@@ -33,6 +35,11 @@ query IssuesList {
             }
           }
         }
+      }
+          pageInfo {
+				endCursor
+        startCursor
+        hasNextPage
       }
     }
   }
@@ -73,6 +80,11 @@ query IssuesListWithCursor($cursor: String!)  {
           }
         }
       }
+            pageInfo {
+				endCursor
+        startCursor
+        hasNextPage
+      }
     }
   }
 }
@@ -82,7 +94,7 @@ query IssuesListWithCursor($cursor: String!)  {
 
 
 
-export const QUERY_ISSUES_LIST_PAGINATED_WITH_STATE= gql` 
+export const QUERY_ISSUES_LIST_PAGINATED_WITH_STATE = gql` 
 query IssuesListPaginatedWithState($cursor: String!, $state: [IssueState!]) {
   repository(owner: "reactjs", name: "reactjs.org") {
     issues(states:$state, orderBy: {field: CREATED_AT, direction: DESC}, first: 10, after: $cursor) {
@@ -115,6 +127,11 @@ query IssuesListPaginatedWithState($cursor: String!, $state: [IssueState!]) {
             }
           }
         }
+      }
+            pageInfo {
+				endCursor
+        startCursor
+        hasNextPage
       }
     }
   }
@@ -155,6 +172,11 @@ query IssuesListPaginated($cursor: String!) {
           }
         }
       }
+            pageInfo {
+				endCursor
+        startCursor
+        hasNextPage
+      }
     }
   }
 }
@@ -193,6 +215,10 @@ query IssuesListByState($state: [IssueState!]) {
             }
           }
         }
+      }
+            pageInfo {
+				endCursor
+        startCursor
       }
     }
   }

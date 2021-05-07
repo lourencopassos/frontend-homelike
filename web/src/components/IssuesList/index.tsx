@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { IssuesListQuery, useIssuesListQuery } from '../../generated/graphql';
+import React from 'react';
+import IssueCard from '../IssueCard';
 
-const IssuesList: React.FC = () => {
-  const [issues, setIssues] = useState<IssuesListQuery | [] | undefined>([]);
+interface Props {
+  issues: any;
+}
 
-  const { data, error, loading } = useIssuesListQuery();
-
-  useEffect(() => setIssues(data), [issues]);
-
-  console.log(issues);
-  console.log(loading);
+const IssuesList: React.FC<Props> = ({ issues }) => {
+  console.log();
 
   return (
-    <div>
-      <p>Teste</p>
-    </div>
+    <section>
+      {issues &&
+        issues.map(({ node }: { node: any }) => (
+          <IssueCard key={node.id} issue={node} />
+        ))}
+    </section>
   );
 };
 

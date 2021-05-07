@@ -1,9 +1,9 @@
 import React from 'react';
 import './App.css';
-import IssuesList from './components/IssuesList';
+import Main from './pages/Main';
 
 function App() {
-  return <IssuesList />;
+  return <Main />;
 }
 
 export default App;

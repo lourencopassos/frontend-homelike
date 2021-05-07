@@ -18,7 +18,7 @@ const stateTagColor = (state: string) => {
 };
 
 const IssueCard: React.FC<IssueProps> = ({ issue }) => {
-  const { title, state, bodyText, participants, createdAt } = issue;
+  const { title, state, bodyText, participants, createdAt, author } = issue;
 
   const date = new Date(createdAt).toLocaleDateString('de-DE');
 
@@ -36,6 +36,11 @@ const IssueCard: React.FC<IssueProps> = ({ issue }) => {
         </div>
       </section>
       <section className="issue-card__body">
+        <div>
+          <p>
+            Author: <span>{author?.login}</span>
+          </p>
+        </div>
         <p> {bodyText} </p>
       </section>
       {participants?.totalCount && (

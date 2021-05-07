@@ -8,7 +8,7 @@ interface Props {
 }
 
 const Header: React.FC<Props> = (props) => {
-  const { onChange, filterValue } = props;
+  const { onChange } = props;
 
   return (
     <header className="header">

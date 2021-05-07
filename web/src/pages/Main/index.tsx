@@ -1,77 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import Loader from 'react-loader-spinner';
 import Header from '../../components/Header';
 import IssuesList from '../../components/IssuesList';
-import {
-  IssuesListQuery,
-  IssueState,
-  useIssuesListByStateQuery,
-  useIssuesListPaginatedQuery,
-  useIssuesListQuery,
-} from '../../generated/graphql';
+import { IssueState, useIssuesListQuery } from '../../generated/graphql';
 
-function Main() {
-  const [issuesList, setIssuesList] = useState<IssuesListQuery | [] | any>([]);
-  const [filterValue, setFilterValue] = useState<IssueState | any>('-1');
-  const [nextPageCursor, setNextPageCursor] = useState<string>('');
-  const [previousPageCursor, setPreviouPageCursor] = useState<string | null>(
-    null,
-  );
-  const [nextIssuesList, setNextIssuesList] = useState<
-    IssuesListQuery | [] | any
-  >([]);
-  const [previousIssuesList, setPreviousIssuesList] = useState<
-    IssuesListQuery | [] | any
-  >([]);
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+
+function Main(): JSX.Element {
+  const [filterValue, setFilterValue] = useState<IssueState | any>(undefined);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [issuesLoading, setIssuesLoading] = useState<boolean>(true);
 
-  const { data, error, loading } = useIssuesListQuery();
+  let state;
 
-  let stateFilter;
+  const issueFilter: IssueState = filterValue;
 
-  if (filterValue === '-1') {
-    stateFilter = { state: null };
+  if (filterValue !== undefined) {
+    state = issueFilter;
   } else {
-    stateFilter = { state: filterValue };
+    state = undefined;
   }
 
-  // const issuesFromPage = issuesList;
-
-  // const lastIssueFromArray = issuesFromPage[issuesFromPage?.length - 1];
-  // const lastIssueCursor = lastIssueFromArray?.cursor;
-
-  const responseByState = useIssuesListByStateQuery({ variables: stateFilter });
-
-  const nextPageIssues = useIssuesListPaginatedQuery({
-    variables: { cursor: nextPageCursor },
+  const { data, error, loading, fetchMore } = useIssuesListQuery({
+    variables: { after: null, state },
   });
-
-  useEffect(() => {
-    if (currentPage === 0) {
-      data && setIssuesList(data?.repository?.issues?.edges);
-      // issuesList && setNextPageCursor(lastIssueCursor);
-    }
-  }, [loading]);
-
-  useEffect(() => {
-    if (filterValue !== '-1') {
-      responseByState &&
-        setIssuesList(responseByState?.data?.repository?.issues?.edges);
-    }
-  }, [responseByState?.loading]);
-
-  // const onClickNextPage = () => {
-  //   setIssuesList(nextPageIssues?.data?.repository?.issues?.edges);
-  //   setCurrentPage(currentPage + 1);
-
-  //   const currentIssues = issuesList;
-  //   const currentIssuesFromArray = currentIssues[issuesFromPage?.length - 1];
-  //   const currentIssuesLast = currentIssuesFromArray?.cursor;
-
-  //   setNextPageCursor(currentIssuesLast);
-  // };
-
-  // console.log(nextPageCursor);
 
   return (
     <>
@@ -79,8 +31,72 @@ function Main() {
         filterValue={filterValue}
         onChange={(event: any) => setFilterValue(event.target.value)}
       />
-      <IssuesList issues={issuesList} />
-      {/* <button onClick={() => onClickNextPage()}>Next</button> */}
+      {loading && (
+        <div className="main-section__loader-container ">
+          <Loader
+            color="#00BFFF"
+            height={100}
+            timeout={3000}
+            type="Grid"
+            width={250}
+          />
+        </div>
+      )}
+      {error && <div className="main-section__loader-container ">{error}</div>}
+      {loadingMore && (
+        <div className="main-section__loader-container ">
+          <Loader
+            color="#00BFFF"
+            height={100}
+            timeout={3000}
+            type="Grid"
+            width={250}
+          />
+        </div>
+      )}
+      {!loading && !loadingMore && (
+        <section className="main-section">
+          <div className="issues-pagination">
+            {currentPage > 0 && (
+              <button
+                disabled={loading}
+                onClick={async () => {
+                  setLoadingMore(true);
+                  setCurrentPage(currentPage - 1);
+                  const endCursor = data?.repository?.issues.pageInfo.endCursor;
+                  await fetchMore({
+                    variables: { before: endCursor },
+                    updateQuery: (prevResult, { fetchMoreResult }) => {
+                      const newList = fetchMoreResult as any;
+                      return newList;
+                    },
+                  });
+                  setLoadingMore(false);
+                }}>
+                Previous
+              </button>
+            )}
+            <button
+              disabled={loadingMore || loading}
+              onClick={async () => {
+                setLoadingMore(true);
+                setCurrentPage(currentPage + 1);
+                const endCursor = data?.repository?.issues.pageInfo.endCursor;
+                await fetchMore({
+                  variables: { after: endCursor },
+                  updateQuery: (prevResult, { fetchMoreResult }) => {
+                    const newList = fetchMoreResult as any;
+                    return newList;
+                  },
+                });
+                setLoadingMore(false);
+              }}>
+              Next
+            </button>
+          </div>
+          {!loading && <IssuesList issues={data?.repository?.issues?.edges} />}
+        </section>
+      )}
     </>
   );
 }

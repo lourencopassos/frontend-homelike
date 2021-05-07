@@ -6,7 +6,6 @@ interface Props {
 }
 
 const IssueParticipant: React.FC<Props> = ({ participant }) => {
-  console.log();
 
   const { avatarUrl, login } = participant;
   return (

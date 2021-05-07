@@ -19848,7 +19848,10 @@ export type ViewerHovercardContext = HovercardContext & {
 };
 
 
-export type IssuesListQueryVariables = Exact<{ [key: string]: never; }>;
+export type IssuesListQueryVariables = Exact<{
+  state?: Maybe<Array<IssueState> | IssueState>;
+  after?: Maybe<Scalars['String']>;
+}>;
 
 
 export type IssuesListQuery = (
@@ -19896,7 +19899,10 @@ export type IssuesListQuery = (
             )>>> }
           )> }
         )> }
-      )>>> }
+      )>>>, pageInfo: (
+        { __typename?: 'PageInfo' }
+        & Pick<PageInfo, 'endCursor' | 'startCursor' | 'hasNextPage'>
+      ) }
     ) }
   )> }
 );
@@ -19951,7 +19957,10 @@ export type IssuesListWithCursorQuery = (
             )>>> }
           )> }
         )> }
-      )>>> }
+      )>>>, pageInfo: (
+        { __typename?: 'PageInfo' }
+        & Pick<PageInfo, 'endCursor' | 'startCursor' | 'hasNextPage'>
+      ) }
     ) }
   )> }
 );
@@ -20007,7 +20016,10 @@ export type IssuesListPaginatedWithStateQuery = (
             )>>> }
           )> }
         )> }
-      )>>> }
+      )>>>, pageInfo: (
+        { __typename?: 'PageInfo' }
+        & Pick<PageInfo, 'endCursor' | 'startCursor' | 'hasNextPage'>
+      ) }
     ) }
   )> }
 );
@@ -20062,7 +20074,10 @@ export type IssuesListPaginatedQuery = (
             )>>> }
           )> }
         )> }
-      )>>> }
+      )>>>, pageInfo: (
+        { __typename?: 'PageInfo' }
+        & Pick<PageInfo, 'endCursor' | 'startCursor' | 'hasNextPage'>
+      ) }
     ) }
   )> }
 );
@@ -20117,16 +20132,19 @@ export type IssuesListByStateQuery = (
             )>>> }
           )> }
         )> }
-      )>>> }
+      )>>>, pageInfo: (
+        { __typename?: 'PageInfo' }
+        & Pick<PageInfo, 'endCursor' | 'startCursor'>
+      ) }
     ) }
   )> }
 );
 
 
 export const IssuesListDocument = gql`
-    query IssuesList {
+    query IssuesList($state: [IssueState!], $after: String) {
   repository(owner: "reactjs", name: "reactjs.org") {
-    issues(orderBy: {field: CREATED_AT, direction: DESC}, first: 10) {
+    issues(states: $state, orderBy: {field: CREATED_AT, direction: DESC}, first: 10, after: $after) {
       edges {
         cursor
         node {
@@ -20157,6 +20175,11 @@ export const IssuesListDocument = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+      }
     }
   }
 }
@@ -20174,6 +20197,8 @@ export const IssuesListDocument = gql`
  * @example
  * const { data, loading, error } = useIssuesListQuery({
  *   variables: {
+ *      state: // value for 'state'
+ *      after: // value for 'after'
  *   },
  * });
  */
@@ -20221,6 +20246,11 @@ export const IssuesListWithCursorDocument = gql`
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
       }
     }
   }
@@ -20287,6 +20317,11 @@ export const IssuesListPaginatedWithStateDocument = gql`
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
       }
     }
   }
@@ -20355,6 +20390,11 @@ export const IssuesListPaginatedDocument = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+      }
     }
   }
 }
@@ -20420,6 +20460,10 @@ export const IssuesListByStateDocument = gql`
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        startCursor
       }
     }
   }
